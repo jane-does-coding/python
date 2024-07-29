@@ -1,63 +1,58 @@
-import pygame
-import sys
+import os
+os.environ['TK_SILENCE_DEPRECATION'] = '1'
 
-pygame.init()
+from turtle import Screen, Turtle
+import time
 
-screen_width, screen_height = 800, 600
-screen = pygame.display.set_mode((screen_width, screen_height))
-pygame.display.set_caption("Simple Mario Game")
+screen = Screen()
+screen.setup(width=600, height=600)
+screen.bgcolor("black")
+screen.title("My Snake Game")
 
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
+snake_segments = []
 
+def create_segment():
+    segment = Turtle("square")
+    segment.color("white")
+    segment.penup()
+    return segment
 
-mario_image = pygame.image.load("mario.png")
-mario_rect = mario_image.get_rect()
-mario_rect.topleft = (50, 500)
+for _ in range(3):
+    segment = create_segment()
+    segment.goto(-20 * _, 0)
+    snake_segments.append(segment)
 
+def move():
+    for i in range(len(snake_segments) - 1, 0, -1):
+        x = snake_segments[i - 1].xcor()
+        y = snake_segments[i - 1].ycor()
+        snake_segments[i].goto(x, y)
+    snake_segments[0].forward(20)
 
-platform = pygame.Rect(0, 550, 800, 50)
+def go_up():
+    if snake_segments[0].heading() != 270:
+        snake_segments[0].setheading(90)
 
+def go_down():
+    if snake_segments[0].heading() != 90:
+        snake_segments[0].setheading(270)
 
-gravity = 0.5
-mario_speed_y = 0
-jump_speed = -10
-on_ground = True
+def go_left():
+    if snake_segments[0].heading() != 0:
+        snake_segments[0].setheading(180)
 
+def go_right():
+    if snake_segments[0].heading() != 180:
+        snake_segments[0].setheading(0)
 
-running = True
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
+screen.listen()
+screen.onkey(go_up, "Up")
+screen.onkey(go_down, "Down")
+screen.onkey(go_left, "Left")
+screen.onkey(go_right, "Right")
 
+while True:
+    screen.update()
+    move()
 
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_LEFT]:
-        mario_rect.x -= 5
-    if keys[pygame.K_RIGHT]:
-        mario_rect.x += 5
-    if keys[pygame.K_SPACE] and on_ground:
-        mario_speed_y = jump_speed
-        on_ground = False
-
-
-    mario_speed_y += gravity
-    mario_rect.y += mario_speed_y
-
-
-    if mario_rect.colliderect(platform):
-        mario_rect.bottom = platform.top
-        mario_speed_y = 0
-        on_ground = True
-
-
-    screen.fill(WHITE)
-    pygame.draw.rect(screen, BLACK, platform)
-    screen.blit(mario_image, mario_rect)
-
-    pygame.display.flip()
-    pygame.time.Clock().tick(30)
-
-pygame.quit()
-sys.exit()
+screen.exitonclick()
