@@ -1,58 +1,110 @@
-import os
-os.environ['TK_SILENCE_DEPRECATION'] = '1'
+def print_welcome_message():
+    print("Welcome to the Adventure Game!")
+    print("You find yourself in a mysterious dungeon with three rooms.")
+    print("Explore the rooms to find the key and escape.")
+    print("Type 'look' to inspect the room, 'go [direction]' to move, and 'quit' to end the game.")
 
-from turtle import Screen, Turtle
-import time
+def room_description(room):
+    if room == 'entrance':
+        print("""
+        You are at the dungeon entrance.
+        There are doors to the north and east.
+         _______
+        |       |
+        |       |
+        |       |_______
+        |               |
+        |   ENTRANCE    |
+        |_______________|
+        """)
+    elif room == 'hall':
+        print("""
+        You are in a long hall.
+        There are doors to the south and east and north.
+         _______________
+        |               |
+        |      HALL     |
+        |               |
+        |               |
+        |_______________|
+        |       |
+        """)
+    elif room == 'treasure':
+        print("""
+        You are in a treasure room!
+        There's a door to the west.
+         _______________
+        |               |
+        |   TREASURE    |
+        |      ROOM     |
+        |               |
+        |_______________|
+        """)
+    elif room == 'puzzle':
+        print("""
+        You are in a puzzle room!
+        There's a door to the west and north.
+         _______________
+        |               |
+        |    PUZZLE     |
+        |      ROOM     |
+        |               |
+        |_______________|
+        """)
+    elif room == 'exit':
+        print("""
+        You are at the dungeon exit.
+        You need a key to escape.
+         _______
+        |       |
+        |       |
+        |   EXIT|
+        |_______|
+        """)
 
-screen = Screen()
-screen.setup(width=600, height=600)
-screen.bgcolor("black")
-screen.title("My Snake Game")
+def main():
+    current_room = 'entrance'
+    has_key = False
+    print_welcome_message()
 
-snake_segments = []
+    while True:
+        room_description(current_room)
+        command = input("> ").strip().lower()
 
-def create_segment():
-    segment = Turtle("square")
-    segment.color("white")
-    segment.penup()
-    return segment
+        if command == 'quit':
+            print("Thanks for playing! Goodbye!")
+            break
+        elif command == 'look':
+            if current_room == 'entrance' and not has_key:
+                print("You see a shiny key in the corner.")
+            elif current_room == 'puzzle' and not has_key:
+                print("Solve the puzzle to get the key.")
+        elif command == 'go north':
+            if current_room == 'entrance':
+                current_room = 'hall'
+            elif current_room == 'hall':
+                current_room = 'exit'
+        elif command == 'go east':
+            if current_room == 'entrance':
+                current_room = 'puzzle'
+            elif current_room == 'hall':
+                current_room = 'treasure'
+        elif command == 'go south':
+            if current_room == 'hall':
+                current_room = 'entrance'
+        elif command == 'go west':
+            if current_room == 'puzzle':
+                current_room = 'entrance'
+            elif current_room == 'treasure':
+                current_room = 'hall'
+        else:
+            print("Invalid command. Try 'look', 'go [direction]', or 'quit'.")
 
-for _ in range(3):
-    segment = create_segment()
-    segment.goto(-20 * _, 0)
-    snake_segments.append(segment)
+        if current_room == 'exit' and has_key:
+            print("Congratulations! You've found the key and escaped the dungeon!")
+            break
+        elif current_room == 'puzzle' and not has_key:
+            print("You found the key in the puzzle room! You can now exit the dungeon.")
+            has_key = True
 
-def move():
-    for i in range(len(snake_segments) - 1, 0, -1):
-        x = snake_segments[i - 1].xcor()
-        y = snake_segments[i - 1].ycor()
-        snake_segments[i].goto(x, y)
-    snake_segments[0].forward(20)
-
-def go_up():
-    if snake_segments[0].heading() != 270:
-        snake_segments[0].setheading(90)
-
-def go_down():
-    if snake_segments[0].heading() != 90:
-        snake_segments[0].setheading(270)
-
-def go_left():
-    if snake_segments[0].heading() != 0:
-        snake_segments[0].setheading(180)
-
-def go_right():
-    if snake_segments[0].heading() != 180:
-        snake_segments[0].setheading(0)
-
-screen.listen()
-screen.onkey(go_up, "Up")
-screen.onkey(go_down, "Down")
-screen.onkey(go_left, "Left")
-screen.onkey(go_right, "Right")
-
-while True:
-    screen.update()
-    move()
-
-screen.exitonclick()
+main()
